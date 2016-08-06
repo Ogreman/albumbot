@@ -13,10 +13,11 @@ crontable.append([timeout, "process_albums"])
 message = "I'm going to make sure any new albums have been processed in the Doomlist."
 url = "https://doomlist.herokuapp.com/slack/process"
 data = {'token': os.environ.get('SLACK_APP_TOKEN'), 'user_id': "U1YUJELR3"}
+channel = "C0A1YLG3X"
 
 
 def process_albums():
-    outputs.append(["C0A1YLG3X", message])
+    outputs.append([channel, message])
     response = requests.post(url, data=json.dumps(data))
-    if not response.ok:
-        outputs.append(["C0A1YLG3X", "Odd... Something went wrong."])
+    if not response.ok or response.content == '':
+        outputs.append([channel, "Odd... Something went wrong."])
