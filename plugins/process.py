@@ -3,11 +3,14 @@ from __future__ import unicode_literals
 import requests
 import os
 
-timeout = int(os.environ.get('SLACK_PROCESS_TIMEOUT', 21600))
+# timeout = int(os.environ.get('SLACK_AOTD_TIMEOUT', 60 * 60 * 24))
+time_of_job = str(os.environ.get('SLACK_PROCESS_TIME', '21:00'))
 
 crontable = []
 outputs = []
-crontable.append([timeout, "process_albums"])
+timejobs = []
+# crontable.append([timeout, "process_albums"])
+timejobs.append([time_of_job, "process_albums"])
 
 message = "I'm going to make sure any new albums have been processed in the Doomlist."
 url = "https://doomlist.herokuapp.com/slack/process"

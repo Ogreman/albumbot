@@ -3,11 +3,15 @@ from __future__ import unicode_literals
 import requests
 import os
 
-timeout = int(os.environ.get('SLACK_AOTD_TIMEOUT', 60 * 60 * 24))
+# timeout = int(os.environ.get('SLACK_AOTD_TIMEOUT', 60 * 60 * 24))
+time_of_job = str(os.environ.get('SLACK_AOTD_TIME', '10:00'))
 
 crontable = []
 outputs = []
-crontable.append([timeout, "produce_album_of_the_day"])
+timejobs = []
+# crontable.append([timeout, "produce_album_of_the_day"])
+timejobs.append([time_of_job, "produce_album_of_the_day"])
+
 
 message = "Today's album of the day from the Doomlist is..."
 error_message = "Odd... Something went wrong."

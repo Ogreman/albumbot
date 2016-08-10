@@ -5,6 +5,7 @@ import glob
 import os
 import time
 import logging
+from datetime import datetime
 
 from slackclient import SlackClient
 
@@ -110,8 +111,9 @@ class RtmBot(object):
                         limiter = True
 
     def crons(self):
+        time_now = datetime.utcnow()
         for plugin in self.bot_plugins:
-            plugin.do_jobs()
+            plugin.do_jobs(time_now)
 
     def load_plugins(self):
         for plugin in glob.glob(self.directory + '/plugins/*'):
@@ -158,6 +160,13 @@ class Plugin(object):
             self.module.crontable = []
         else:
             self.module.crontable = []
+        if 'timejobs' in dir(self.module):
+            for timestamp, function in self.module.timejobs:
+                self.jobs.append(Job(timestamp, eval("self.module." + function), self.debug))
+            logging.info(self.module.timejobs)
+            self.module.timejobs = []
+        else:
+            self.module.timejobs = []
 
     def do(self, function_name, data):
         if function_name in dir(self.module):
@@ -180,9 +189,9 @@ class Plugin(object):
                 except Exception:
                     logging.exception("problem in catch all: {} {}".format(self.module, data))
 
-    def do_jobs(self):
+    def do_jobs(self, time_now):
         for job in self.jobs:
-            job.check()
+            job.check(time_now)
 
     def do_output(self):
         output = []
@@ -211,18 +220,30 @@ class Job(object):
     def __repr__(self):
         return self.__str__()
 
-    def check(self):
-        if self.lastrun + self.interval < time.time():
-            if self.debug is True:
-                # this makes the plugin fail with stack trace in debug mode
+    def check(self, time_now):
+        if isinstance(self.interval, (str, unicode)):
+            # timejobs
+            if (self.lastrun == 0) or (self.lastrun and self.lastrun.day != time_now.day):
+                hour, minute = self.interval.split(':')
+                if int(hour) == time_now.hour and int(minute) == time_now.minute:
+                    self.do()
+                    self.lastrun = time_now
+        else:
+            # crontable
+            if self.lastrun + self.interval < time.time():
+                self.do()
+                self.lastrun = time.time()
+
+    def do(self):
+        if self.debug is True:
+            # this makes the plugin fail with stack trace in debug mode
+            self.function()
+        else:
+            # otherwise we log the exception and carry on
+            try:
                 self.function()
-            else:
-                # otherwise we log the exception and carry on
-                try:
-                    self.function()
-                except Exception:
-                    logging.exception("Problem in job check: {}".format(self.function))
-            self.lastrun = time.time()
+            except Exception:
+                logging.exception("Problem in job check: {}".format(self.function))
 
 
 class UnknownChannel(Exception):
