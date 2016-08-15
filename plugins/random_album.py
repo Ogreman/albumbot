@@ -17,7 +17,7 @@ message = "Today's album of the day from the Doomlist is..."
 error_message = "Odd... Something went wrong."
 url = "https://doomlist.herokuapp.com/slack/random"
 data = {'token': os.environ.get('SLACK_APP_TOKEN')} 
-channel = "C0A26H7PX"
+channel = "C0A8M8B9Q" # announcements
 
 
 def produce_album_of_the_day():
