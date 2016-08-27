@@ -3,12 +3,14 @@ from __future__ import unicode_literals
 import requests
 import os
 
-time_of_job = str(os.environ.get('SLACK_CHECK_TIME', '04:51'))
+time_of_job = str(os.environ.get('SLACK_CHECK_TIME', '12:00'))
+weekday = 6
 
 crontable = []
 outputs = []
 timejobs = []
-timejobs.append([time_of_job, "check_links"])
+weeklyjobs = []
+weeklyjobs.append([(time_of_job, weekday), "check_links"])
 
 message = "I'm going to check every bandcamp URL in the Doomlist."
 url = "https://doomlist.herokuapp.com/slack/check"

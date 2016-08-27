@@ -167,6 +167,13 @@ class Plugin(object):
             self.module.timejobs = []
         else:
             self.module.timejobs = []
+        if 'weeklyjobs' in dir(self.module):
+            for time_tuple, function in self.module.weeklyjobs:
+                self.jobs.append(Job(time_tuple, eval("self.module." + function), self.debug))
+            logging.info(self.module.weeklyjobs)
+            self.module.weeklyjobs = []
+        else:
+            self.module.weeklyjobs = []
 
     def do(self, function_name, data):
         if function_name in dir(self.module):
@@ -208,6 +215,7 @@ class Plugin(object):
 
 
 class Job(object):
+    # TODO: subclass Job to break check up
     def __init__(self, interval, function, debug):
         self.function = function
         self.interval = interval
@@ -228,6 +236,17 @@ class Job(object):
                 if int(hour) == time_now.hour and int(minute) == time_now.minute:
                     self.do()
                     self.lastrun = time_now
+
+        elif isinstance(self.interval, (tuple, list)):
+            # weeklyjobs
+            interval, weekday = self.interval
+            if time_now.weekday == weekday:
+                if (self.lastrun == 0) or (self.lastrun and self.lastrun.day != time_now.day):
+                    hour, minute = interval.split(':')
+                    if int(hour) == time_now.hour and int(minute) == time_now.minute:
+                        self.do()
+                        self.lastrun = time_now
+
         else:
             # crontable
             if self.lastrun + self.interval < time.time():
