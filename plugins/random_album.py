@@ -13,7 +13,7 @@ timejobs = []
 timejobs.append([time_of_job, "produce_album_of_the_day"])
 
 
-message = "Today's album of the day from the Doomlist is..."
+message = "Today's album of the day from the Doomlist is: {url}"
 error_message = "Odd... Something went wrong."
 url = "https://doomlist.herokuapp.com/slack/random"
 data = {'token': os.environ.get('SLACK_APP_TOKEN')} 
@@ -21,11 +21,11 @@ channel = "C0A8M8B9Q" # announcements
 
 
 def produce_album_of_the_day():
-    outputs.append([channel, message])
     response = requests.post(url, data=data)
     if not response.ok or response.content == '':
         outputs.append([channel, error_message])
     else:
         response = response.json()
         response['channel'] = channel
+        response['text'] = message.format(url=response['text'])
         outputs.append([channel, response])
