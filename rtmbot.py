@@ -23,6 +23,7 @@ from rtmbot import RtmBot
 config = {
     'SLACK_TOKEN': os.environ.get('SLACK_TOKEN'),
     'DEBUG': os.environ.get('DEBUG', True),
+    'HEARTBEAT': os.environ.get('HEARTBEAT', 1.0)
 }
 bot = RtmBot(config)
 bot.start()
