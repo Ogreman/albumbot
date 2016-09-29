@@ -27,6 +27,8 @@ class RtmBot(object):
         '''
         # set the config object
         self.config = config
+        
+        self.heartbeat = float(config.get('HEARTBEAT'))
 
         # set slack token
         self.token = config.get('SLACK_TOKEN')
@@ -70,7 +72,7 @@ class RtmBot(object):
             self.crons()
             self.output()
             self.autoping()
-            time.sleep(.1)
+            time.sleep(self.heartbeat or .1)
 
     def start(self):
         if 'DAEMON' in self.config:
