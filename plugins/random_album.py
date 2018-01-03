@@ -27,5 +27,5 @@ def produce_album_of_the_day():
     else:
         response = response.json()
         response['channel'] = channel
-        response['text'] = message.format(url=response['text'])
+        response['text'] = message.format(url=response['attachments'][0]['pretext'])
         outputs.append([channel, response])
